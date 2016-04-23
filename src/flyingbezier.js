@@ -49,7 +49,7 @@ function flybezier(cfg, handler) {
 	],staksCount=0,stack,t;
 
 	// Устанавливаем опцию rotate
-	var rotatemode = !!config.calcAngle;
+	
 	// Конвертируем процентры в пиксели
 	for (i = 0;i<compiledPath.length;i++) {
 		cubicbpathpx[i] = pixelize(compiledPath[i], area[xy]);
@@ -83,7 +83,8 @@ function flybezier(cfg, handler) {
 		);
 		x = xy[0]; y = xy[1]; 
 		var a=0,b=0,summand=0,angle=0;
-		if (rotatemode) {
+		
+		if (!!config.calcAngle) {
 			// Рассчет направления движения
 			angle = bezieraxe.getangledirection(x0,x,y0,y);
 		} else {
