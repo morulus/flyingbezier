@@ -1,0 +1,20 @@
+{
+  "name": "flyingbezier",
+  "version": "1.0.0",
+  "description": "Performs movement along the curve",
+  "main": "dist/flyingbezier.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --config config.webpack.js --content-base demo/ --port 6015",
+    "build": "webpack --colors --progress --config config.webpack.js"
+  },
+  "keywords": [
+    "bezier",
+    "javascript"
+  ],
+  "author": "Vladimir Kalmykov <vladimirmorulus@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^1.13.0"
+  }
+}
