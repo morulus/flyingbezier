@@ -105,34 +105,27 @@ return /******/ (function(modules) { // webpackBootstrap
 		return parseInt(value);
 	}
 
-
-	var boxsize = [500,180];
-	var frames = 300;
-	var i = 0;
-	var progress = 0;
-	var stack = 0;
-
 	/**
 	Performs movement along the curve
 	**/
-	function flybezier(userconfig, handler) {
+	function flybezier(cfg, handler) {
 		var config = {
 			path: false,
 			areaWidth: false,
 			areaHeight: false,
 			duration: 5000 // ms
 		};
-		for (var prop in userconfig) {
-			if (userconfig.hasOwnProperty(prop)) {
-				config[prop] = userconfig[prop];
+		for (var prop in cfg) {
+			if (cfg.hasOwnProperty(prop)) {
+				config[prop] = cfg[prop];
 			}
 		}
-		var compiledPath = svgPathToCubicBezierPoints(ob.config.path, true)
+		var compiledPath = svgPathToCubicBezierPoints(config.path, true)
 
 		var x0=0,y0=0,cubicbpathpx = [],xy=0,x,y,rotatemode,
 		area=[
-			areaWidth||boxsize[0],
-			areaHeight||boxsize[1]
+			config.areaWidth||600,
+			config.areaHeight||600
 		],staksCount=0,stack,t;
 
 		// Устанавливаем опцию rotate
@@ -147,9 +140,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		var pos = 0;
 		setInterval(function(progress) {
 			pos+=20;
-			if (step>confog.duration) pos = 0;
+			if (pos>config.duration) pos = 0;
 
-			var progress = step/confog.duration;
+			var progress = pos/config.duration;
 			/*
 			Расчитываем какой стек из 8 точек сейчас работает
 			*/
@@ -183,13 +176,112 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
+	if ("object"===typeof window) window.flybezier = flybezier;
 	module.exports = flybezier;
 
 /***/ },
 /* 1 */
 /***/ function(module, exports) {
 
-	var cubicbpath = ["1%","50%","1%","22.75%","10%","1%","19%","1%","19%","1%","25%","1%","41.5%","32%","50%","50%","50%","50%","58%","66.5%","67.5%","99%","80%","99%","80%","99%","93%","99%","99%","72.5%","99%","50%","99%","50%","99%","30%","91%","1%","81%","1%","81%","1%","67.5%","1%","57%","30.5%","50%","50%","50%","50%","42.5%","67.5%","32%","99%","20%","99%","20%","99%","8%","99%","1%","81%","1%","50%"];
+	var tm = { 
+		trinatur : function(num) {
+			return num;
+		},
+		angle : function(angle) {
+			if (angle<0) angle = 360-angle;
+			if (angle>360) angle -= 360;
+			return angle;
+		},
+		de_ra : function(de) {
+			var pi = Math.PI;
+			var de_ra = (de*(pi/180));
+			return de_ra;
+		},
+		ra_de : function(radian) {
+			var y = (radian * 180) / Math.PI;
+			while (y>360) y=y-360;
+			return y;
+		},
+		sin : function(ra) {
+			if ( (ra == 0) || (ra == 180) || (ra == 360) ) return 0;
+			else return Math.sin(this.de_ra(ra));
+		},
+		cos : function(ra) {
+			if ( (ra == 270) || (ra == 90) ) return 0;
+			else return Math.cos(this.de_ra(ra));
+		},
+		delta2sc: function(a, b, $C) {
+			
+			var c = Math.sqrt(
+				Math.pow(a,2) + Math.pow(b, 2) - (2 * a * b * this.cos($C))
+			);
+			
+			var $A = this.ra_de(Math.acos((b*b + c*c - a*a)/(2*b*c)));
+			
+			var $B = 180-$A-$C;
+			
+			var result = {
+				a: a,
+				b: b,
+				c: c,
+				'$A': $A,
+				'$B': $B,
+				'$C': $C
+			};
+			
+			return result;
+		},
+		delta2c1s: function(a, $C, $A) {
+			var $B = 180-($C+$A);
+			var c = a * (this.sin($C) / this.sin($A));
+			var b = a * (this.sin($B) / this.sin($A));
+			return {
+				a: a,
+				b: b,
+				c: c,
+				'$A': $A,
+				'$B': $B,
+				'$C': $C
+			};
+		},
+		rotation : function(l, a, back)
+		{
+			W = l * this.cos(a);
+			if (back!=true) {
+				if (W<0) return 0;
+			};
+			return W;
+		},
+		disrotation : function(a,ac) {
+			dis = ac * this.sin(a);
+			return dis;
+		},
+		not0 : function(num) {
+			if (num<1) {
+			   num = 1;
+			};
+			return num;
+		}, 
+		nature : function(num) {
+			if (num<0) num = 0;
+			return Math.abs(num);
+		},
+		distX: function(radius, radian) {
+			return this.disrotation(radian, radius);
+		},
+		distY: function(radius, radian) {
+			return radius*this.sin(90 - radian);
+		},
+		/* calc 3D perspective */
+		perspective: function(focusd, matrixw, distantion) {
+			
+			var hangle = this.delta2sc(matrixw/2, focusd, 90)['$B'];
+			
+			var areaw = this.delta2c1s(distantion, hangle, (90-hangle)).c;
+			
+			return areaw;
+		}
+	};
 		
 	var boxsize = [500,180];
 	var frames = 300;
