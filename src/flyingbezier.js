@@ -30,13 +30,16 @@ function flybezier(cfg, handler) {
 		path: false,
 		areaWidth: false,
 		areaHeight: false,
-		duration: 5000 // ms
+		duration: 5000, // ms
+		calcAngle: true
 	};
+
 	for (var prop in cfg) {
 		if (cfg.hasOwnProperty(prop)) {
 			config[prop] = cfg[prop];
 		}
 	}
+
 	var compiledPath = svgPathToCubicBezierPoints(config.path, true)
 
 	var x0=0,y0=0,cubicbpathpx = [],xy=0,x,y,rotatemode,
@@ -46,7 +49,7 @@ function flybezier(cfg, handler) {
 	],staksCount=0,stack,t;
 
 	// Устанавливаем опцию rotate
-	var rotatemode = true;
+	var rotatemode = !!config.calcAngle;
 	// Конвертируем процентры в пиксели
 	for (i = 0;i<compiledPath.length;i++) {
 		cubicbpathpx[i] = pixelize(compiledPath[i], area[xy]);
